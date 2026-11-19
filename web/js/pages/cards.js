@@ -1,8 +1,8 @@
 // 卡牌图鉴（pjsk / bandori / onotes / shinycolors 四模块）：风格化筛选（彩色属性 pill / 稀有度 chip / 自定义角色下拉 / 分段排序）
 import { ensureIndex, ensureBandoriIndex, ensureShinyIndex, ensureOnotesIndex, filterCards, characters, bandoriCharacters, shinyCharacters, onotesCharacters,
-         getCards, getBandoriCards, getShinyCards, getOnotesCards } from '../store.js?v=1.16.1';
+         getCards, getBandoriCards, getShinyCards, getOnotesCards } from '../store.js?v=1.16.2';
 import { esc, cardCellHtml, attrDot, ATTR_COLORS, ATTR_NAMES,
-         BANDORI_ATTR_COLORS, BANDORI_ATTR_NAMES, ONOTES_ATTR_COLORS, ONOTES_ATTR_NAMES } from '../ui.js?v=1.16.1';
+         BANDORI_ATTR_COLORS, BANDORI_ATTR_NAMES, ONOTES_ATTR_COLORS, ONOTES_ATTR_NAMES } from '../ui.js?v=1.16.2';
 
 const PAGE = 60;
 const filters = { q: '', unit: '', characterId: '', attr: '', rarity: '', kind: '', sort: 'id_desc' };

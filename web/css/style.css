@@ -623,10 +623,11 @@ img { display: block; }
 .f-toggle { color: var(--text-2); }
 .f-toggle b { color: var(--primary); font-weight: 800; }
 .f-toggle.on { border-color: var(--primary); color: var(--primary-strong); }
-.filter-rows[hidden] { display: none; }
 /* 收缩容器内的筛选行保持与原来完全一致的 12px 行距
-   （toolbar-v2 的 gap 只作用于直接子元素，包一层后会丢失） */
+   （toolbar-v2 的 gap 只作用于直接子元素，包一层后会丢失）。
+   ⚠️ hidden 的隐藏规则必须压过上面的 display:flex（同级特异性按顺序取胜） */
 .toolbar-v2 .filter-rows { display: flex; flex-direction: column; gap: 12px; }
+.toolbar-v2 .filter-rows[hidden] { display: none; }
 
 /* 角色自定义下拉 */
 .char-dd { position: relative; display: inline-block; }

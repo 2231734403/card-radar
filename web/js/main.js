@@ -1,18 +1,18 @@
 // 入口：游戏模块化导航 —— 每个模块有自己的首页/子页面，全局保留「设置」「关于与策略」；
 // 切换模块时全站主题色顺滑过渡（theme.js + CSS @property）。
 // 扩充新游戏模块：在 MODULES 里追加一项（pages[0] 即该模块的首页）即可，无需改其他代码。
-import { register, start } from './router.js?v=1.16.1';
-import { renderHome } from './pages/home.js?v=1.16.1';
-import { renderCards } from './pages/cards.js?v=1.16.1';
-import { renderDetail } from './pages/detail.js?v=1.16.1';
+import { register, start } from './router.js?v=1.16.2';
+import { renderHome } from './pages/home.js?v=1.16.2';
+import { renderCards } from './pages/cards.js?v=1.16.2';
+import { renderDetail } from './pages/detail.js?v=1.16.2';
 import { renderBandoriHome, renderBandoriDetail, renderShinyHome, renderShinyDetail,
-         renderOnotesHome, renderOnotesDetail } from './pages/module.js?v=1.16.1';
-import { renderAbout } from './pages/placeholder.js?v=1.16.1';
-import { renderSettings } from './pages/settings.js?v=1.16.1';
-import { fetchStatus } from './api.js?v=1.16.1';
-import { initDlPanel } from './dlpanel.js?v=1.16.1';
-import { applyTheme } from './theme.js?v=1.16.1';
-import { getSettings, setSetting } from './userSettings.js?v=1.16.1';
+         renderOnotesHome, renderOnotesDetail } from './pages/module.js?v=1.16.2';
+import { renderAbout } from './pages/placeholder.js?v=1.16.2';
+import { renderSettings } from './pages/settings.js?v=1.16.2';
+import { fetchStatus } from './api.js?v=1.16.2';
+import { initDlPanel } from './dlpanel.js?v=1.16.2';
+import { applyTheme } from './theme.js?v=1.16.2';
+import { getSettings, setSetting } from './userSettings.js?v=1.16.2';
 
 // 游戏模块定义：theme 与 CSS 的 html[data-theme] 对应（pjsk=默认青蓝、bandori=#FF3377 红、
 // onotes=星空紫、sc=#8adfff 蓝系）。

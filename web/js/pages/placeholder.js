@@ -1,5 +1,5 @@
 // 预留模块占位页 + 关于页
-import { esc } from '../ui.js?v=1.16.1';
+import { esc } from '../ui.js?v=1.16.2';
 
 const ROADMAP = [
   { icon: '🎵', t: '音乐列表', d: '同步曲目、JVocal、谱面难度等' },

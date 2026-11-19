@@ -1,7 +1,7 @@
 // 首页：概览 + 统计 + 最新卡牌
-import { fetchStatus } from '../api.js?v=1.16.1';
-import { ensureIndex, getCards, getUpdatedAt } from '../store.js?v=1.16.1';
-import { esc, cardCellHtml, fmtDate } from '../ui.js?v=1.16.1';
+import { fetchStatus } from '../api.js?v=1.16.2';
+import { ensureIndex, getCards, getUpdatedAt } from '../store.js?v=1.16.2';
+import { esc, cardCellHtml, fmtDate } from '../ui.js?v=1.16.2';
 
 export async function renderHome(app) {
   app.innerHTML = '<div class="loading-block">正在加载卡牌雷达…</div>';

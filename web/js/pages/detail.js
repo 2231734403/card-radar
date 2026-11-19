@@ -1,9 +1,9 @@
 // 卡牌详情：突破前后卡面（低清预览 + 按需下载 PNG 原图 → 统一下载面板处理下载与超分）、资料、技能、服装、剧情
-import { fetchCardDetail, downloadOriginal } from '../api.js?v=1.16.1';
-import { render } from '../router.js?v=1.16.1';
-import { ensureIndex, getCard, getCards } from '../store.js?v=1.16.1';
-import { esc, attrDot, rarityLabel, fmtDate, openImageModal, toast, ATTR_NAMES } from '../ui.js?v=1.16.1';
-import { registerJob } from '../dlpanel.js?v=1.16.1';
+import { fetchCardDetail, downloadOriginal } from '../api.js?v=1.16.2';
+import { render } from '../router.js?v=1.16.2';
+import { ensureIndex, getCard, getCards } from '../store.js?v=1.16.2';
+import { esc, attrDot, rarityLabel, fmtDate, openImageModal, toast, ATTR_NAMES } from '../ui.js?v=1.16.2';
+import { registerJob } from '../dlpanel.js?v=1.16.2';
 
 const SOURCE_NAMES = { card: '卡牌服装', shop: '商店购买', other: '其他' };
 const PART_NAMES = { body: '服装', hair: '发型', head: '头饰' };

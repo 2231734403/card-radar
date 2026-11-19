@@ -1,8 +1,8 @@
 // 设置页：个性化偏好，模块化分节（新增设置项只需加一节卡片）。
-import { esc } from '../ui.js?v=1.16.1';
-import { getSettings, setSetting } from '../userSettings.js?v=1.16.1';
-import { resetFabPos } from '../dlpanel.js?v=1.16.1';
-import { cacheStats, cacheClear, fetchStatus } from '../api.js?v=1.16.1';
+import { esc } from '../ui.js?v=1.16.2';
+import { getSettings, setSetting } from '../userSettings.js?v=1.16.2';
+import { resetFabPos } from '../dlpanel.js?v=1.16.2';
+import { cacheStats, cacheClear, fetchStatus } from '../api.js?v=1.16.2';
 
 const SR_OPTIONS = [
   { v: "4k", title: "4K 超清", desc: "长边 3840 · 2520×1440 源 → 3840×2194", tag: "壁纸首选 · 推荐" },
