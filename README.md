@@ -4,6 +4,12 @@
 纯本地运行（http://127.0.0.1:8819），零第三方 Python 依赖（标准库 + Pillow），低清预览常驻本地、
 高清原图只在点击「下载原图」时抓取，最大程度节省存储空间。
 
+## 界面预览
+
+| PJSK 卡面（青蓝主题） | Our Notes 卡面（星空紫主题） |
+|---|---|
+| ![PJSK 卡面图鉴首页](docs/screenshot-pjsk.png) | ![Our Notes 卡面图鉴首页](docs/screenshot-onotes.png) |
+
 ## 支持的游戏
 
 | 模块 | 数据来源 | 内容 |
