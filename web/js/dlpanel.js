@@ -1,8 +1,8 @@
 // 统一下载面板（Edge 风格）：左下角下载球可拖拽到任意位置，
 // 点击弹出的下载面板自动贴随在球旁边；下载与超分任务集中处理；
 // 跨页面常驻（DOM 挂在 body 上）。
-import { downloadProgress, downloadJobs, removeJob, superresImage } from './api.js?v=1.16.0';
-import { getSettings } from './userSettings.js?v=1.16.0';
+import { downloadProgress, downloadJobs, removeJob, superresImage } from './api.js?v=1.16.1';
+import { getSettings } from './userSettings.js?v=1.16.1';
 
 const FAB_POS_KEY = "dlfab_pos";
 

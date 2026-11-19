@@ -1,5 +1,5 @@
 // 数据仓库：缓存卡牌索引（pjsk + bandori + onotes + shinycolors 多模块），提供筛选与查找
-import { fetchIndex, fetchBandoriIndex, fetchShinyIndex, fetchOnotesIndex } from './api.js?v=1.16.0';
+import { fetchIndex, fetchBandoriIndex, fetchShinyIndex, fetchOnotesIndex } from './api.js?v=1.16.1';
 
 let _index = null; // {updatedAt, cards:[...]}
 let _loading = null;

@@ -1,14 +1,14 @@
 // 游戏模块页面：邦多利 / Our Notes / 闪耀色彩（真数据）。
 // 各模块首页/详情页按 pjsk 模块同款格式渲染（下载/超分走统一下载面板）。
 import { esc, cardCellHtml, attrDot, fmtDate, openImageModal, toast,
-         BANDORI_ATTR_COLORS, BANDORI_ATTR_NAMES, ONOTES_ATTR_COLORS, ONOTES_ATTR_NAMES } from '../ui.js?v=1.16.0';
+         BANDORI_ATTR_COLORS, BANDORI_ATTR_NAMES, ONOTES_ATTR_COLORS, ONOTES_ATTR_NAMES } from '../ui.js?v=1.16.1';
 import { fetchBandoriStatus, fetchBandoriCardDetail, downloadOriginal,
          fetchShinyStatus, fetchShinyCardDetail,
-         fetchOnotesStatus, fetchOnotesCardDetail } from '../api.js?v=1.16.0';
+         fetchOnotesStatus, fetchOnotesCardDetail } from '../api.js?v=1.16.1';
 import { ensureBandoriIndex, getBandoriCards, getBandoriCard, getBandoriUpdatedAt,
          ensureShinyIndex, getShinyCards, getShinyCard, getShinyUpdatedAt,
-         ensureOnotesIndex, getOnotesCards, getOnotesCard, getOnotesUpdatedAt } from '../store.js?v=1.16.0';
-import { registerJob } from '../dlpanel.js?v=1.16.0';
+         ensureOnotesIndex, getOnotesCards, getOnotesCard, getOnotesUpdatedAt } from '../store.js?v=1.16.1';
+import { registerJob } from '../dlpanel.js?v=1.16.1';
 
 // 闪耀色彩占位（数据未接入）
 const SC_META = {
