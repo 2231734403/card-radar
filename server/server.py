@@ -45,7 +45,7 @@ PORT = 8819
 
 STORAGE_MAIN = "https://storage.pjsk.moe/sekai-jp-assets"
 STORAGE_BACKUP = "https://storage.exmeaning.com/sekai-jp-assets"
-SERVER_VERSION = "1.15.0"  # bump on every behavior change, so e2e tests can
+SERVER_VERSION = "1.16.2"  # bump on every behavior change, so e2e tests can
 # prove the running process is the new code (tieba-radar lesson E07/E18)
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/125.0 Safari/537.36")
