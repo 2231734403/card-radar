@@ -370,7 +370,7 @@ tools/              一次性脚本与维护工具（.gitignore，不入库）
 - 单一版本号贯穿：`server.py:SERVER_VERSION` + 所有前端 `?v=`（由 `tools/bump_version.ps1` 批量替换，脚本内 `$V` 与 `$old` 两处都要改，只许用编辑器改，不许 shell 拼接）。
 - bump 后**必须抽查** `web/index.html` 的 `?v=` 实际值（历史上出现过「bumped 但值没变」的假成功）。
 - 验证前端改动：浏览器必须 **Ctrl+F5 / URL 加 cache-bust**——本环境（IAB）memory cache 不遵守 no-cache，会跑到旧 JS。
-- 提交规范：`vX.Y.Z: 简短英文描述`；仓库已连 GitHub（`origin/main`）。
+- 提交规范：`vX.Y.Z: 简短英文描述`；仓库与发布流程见第 15 章。
 
 ---
 
@@ -433,3 +433,110 @@ tools/              一次性脚本与维护工具（.gitignore，不入库）
 - 任何「通用函数接新数据集」→ 先逐字段对类型（数字 vs 字符串）。
 - 任何「aspect-ratio 图片网格」→ 图片用 `position:absolute; inset:0`。
 - 任何「计划任务/locale/字段名」→ 用真实数据源抽样核对，不信任文档字面（md 的「稀有度」列其实是内部编号就是例子）。
+
+---
+
+## 15. GitHub 接入与发布
+
+### 15.1 仓库信息
+
+| 项 | 值 |
+|---|---|
+| 远程 | `https://github.com/2231734403/card-radar.git`（公开，MIT） |
+| 分支 | `main`（唯一长期分支，直接推送，无 PR 流程） |
+| 本地路径 | `E:\ZCode\pjsk-card-wiki`（与仓库名不同，git 不关心目录名） |
+| 提交身份 | 仓库级 `user.name = Dingdong Bird`，`user.email = 99382590+2231734403@users.noreply.github.com`（noreply 邮箱，避免暴露真实邮箱） |
+| 凭据 | 首次 push 时 Git Credential Manager 走浏览器 OAuth，凭据存入 Windows 凭据管理器，之后免登录 |
+
+当前提交历史（5 条，全部作者同一人）：
+
+```
+ebc6448 docs: add self-contained technical overview for external review
+ff36084 fix: server never started after v1.16.0 (vbs self-recursion)
+f2701e1 docs: add UI screenshots (PJSK / Our Notes home)
+915c5cf v1.16.2: fix collapsed filter rows not hiding (display:flex outranked [hidden])
+bb705ab v1.16.1: keep original 12px row spacing inside collapsible filter panel
+b3f25ba Card Radar v1.16.0: four-game card mirror site
+```
+
+### 15.2 什么入库 / 什么不入库（重要边界）
+
+`.gitignore` 的取舍都是刻意的：
+
+| 排除项 | 原因 |
+|---|---|
+| `data/` | 抓取产物。**含游戏版权图片与新番数据**，不入库；克隆者跑一次爬虫即可生成 |
+| `ai_engine/` | Real-ESRGAN 二进制 + 模型（数十 MB，第三方授权），README 给官方下载指引 |
+| `tools/` | 一次性调试脚本，且部分含本机绝对路径/用户名 |
+| `HANDOFF.md` | 内部工作交接（含本机环境与私人备注），不适合公开 |
+| `__pycache__/` `*.pyc` `*.log` | 常规忽略 |
+| `.zcode/` `.vscode/` `Thumbs.db` `.DS_Store` | 编辑器/系统垃圾 |
+
+**入库的**：`scraper/` `server/` `web/`（含 `web/img/attr/` 角标素材）`scripts/` `docs/` `README.md` `LICENSE` `.gitignore`——共 60+ 文件。
+
+### 15.3 首次上传流程（已执行，供复现/迁移参考）
+
+```bat
+:: 0) 安装 git（winget）
+winget install --id Git.Git -e --accept-source-agreements --accept-package-agreements --silent
+
+:: 1) 本地初始化（-b main 显式指定主分支名）
+cd /d E:\ZCode\pjsk-card-wiki
+git init -b main
+
+:: 2) 身份（仓库级，不污染全局）
+git config user.name "Dingdong Bird"
+git config user.email "99382590+2231734403@users.noreply.github.com"
+
+:: 3) 上线前自检：扫描隐私/硬编码路径
+::    关键词：E:\ZCode、C:\Users、用户名、下载目录绝对路径
+::    本次扫出 29 处，逐个改为相对路径（如 6 个 *_hidden.vbs 用 fso 推导项目根）
+
+:: 4) 暂存并核对清单（确认 data/tools/HANDOFF 未被包含）
+git add -A
+git status --short
+
+:: 5) 首个提交
+git commit -m "Card Radar v1.16.0: four-game card mirror site"
+
+:: 6) 网页建空仓库（不勾 README/.gitignore/LICENSE，避免与本地冲突），然后绑定并推送
+git remote add origin https://github.com/2231734403/card-radar.git
+git push -u origin main      :: 首次会弹 GCM 浏览器授权
+```
+
+### 15.4 日常更新（每次改完代码）
+
+```bat
+cd /d E:\ZCode\pjsk-card-wiki
+git add -A
+git commit -m "vX.Y.Z: what changed（英文简短描述）"
+git push
+```
+
+提交前自检三件事：
+1. `git status --short` 不出现 `data/`、`tools/`、`HANDOFF.md`
+2. 版本号已 bump（`SERVER_VERSION` 与 `?v=` 一致）
+3. 服务已重启且 `/api/status` 返回新版本
+
+### 15.5 克隆者视角（README 已覆盖，此处给维护者核对）
+
+```bat
+git clone https://github.com/2231734403/card-radar.git
+cd card-radar
+pip install --user pillow
+scripts\run_server.cmd          :: 起站，浏览器开 127.0.0.1:8819（此时图鉴为空）
+scripts\run_scrape.cmd          :: 依次跑四个爬虫生成 data/
+powershell -ExecutionPolicy Bypass -File scripts\install_tasks.ps1   :: 可选：注册双周任务
+```
+
+克隆后**没有**的东西：`data/`（跑爬虫生成）、`ai_engine/`（按 README 下载，缺失则超分自动回退 Pillow）。这两条必须在 README 里保持显著，否则新人会以为项目坏了。
+
+### 15.6 常见问题排查
+
+| 现象 | 处理 |
+|---|---|
+| push 提示 403 / 要密码 | GitHub 已禁用密码推送；删掉 Windows 凭据管理器中 `git:https://github.com` 条目，重新 push 走浏览器授权 |
+| 提交作者显示错误 | 当前仓库配置已是本人；批量改历史用 `git rebase --root --exec "git commit --amend --no-edit --reset-author"` 后 `git push --force`（单人仓库安全） |
+| 想把 HANDOFF 等加回库 | 改 `.gitignore` 后 `git add -f <path>`，但先确认里面没有隐私信息 |
+| 改了 .vbs 后服务起不来 | 先读自启链路（任务 Action → vbs → cmd → python），确认没有回调成环（见第 9 章 T18） |
+| 图片在 GitHub 上不显示 | README 里必须用相对路径 `docs/xxx.png`，不要用本机绝对路径 |
