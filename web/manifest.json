@@ -1,0 +1,16 @@
+{
+  "name": "卡牌雷达 · Card Radar",
+  "short_name": "卡牌雷达",
+  "description": "多游戏二次元卡面图鉴纯本地镜像站",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fa",
+  "theme_color": "#14b8a6",
+  "icons": [
+    {
+      "src": "/img/attr/attr_cool.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}

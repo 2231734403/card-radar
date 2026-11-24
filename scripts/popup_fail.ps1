@@ -1,4 +1,9 @@
-﻿# 抓取失败弹窗（置顶显示在用户桌面上）
+﻿param(
+    [string]$Module = "PJSK",
+    [string]$LogFile = "scrape.log",
+    [string]$RetryCmd = "scripts\run_scrape.cmd"
+)
+# 抓取失败弹窗（UTF-8 with BOM，置顶显示在用户桌面）
 $ErrorActionPreference = 'Stop'
 
 Add-Type -TypeDefinition @"
@@ -11,7 +16,7 @@ public class Win32Msg {
 "@
 
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$log = Join-Path $root 'data\logs\scrape.log'
+$log = Join-Path $root ('data\logs\' + $LogFile)
 $tail = ''
 try {
     if (Test-Path $log) {
@@ -20,10 +25,10 @@ try {
     }
 } catch { $tail = '（日志读取失败）' }
 
-$msg = "Pjsk 卡牌雷达：本次自动抓取未成功！`r`n`r`n" +
-       "请检查网络连接后，可手动运行 scripts\run_scrape.cmd 重试。`r`n" +
-       "已有卡面不会被重复下载，重启抓取只补缺失部分。`r`n`r`n" +
-       "--- 最近日志 ---`r`n$tail"
+$msg = "卡牌雷达（$Module）：本次自动抓取未完全成功！`r`n`r`n" +
+       "请检查网络连接后，可手动运行 $RetryCmd 重试。`r`n" +
+       "已有卡面不会被重复下载，失败项已进入指数退避重试队列。`r`n`r`n" +
+       "--- 最近日志（$LogFile）---`r`n$tail"
 
 # 0x40000 TOPMOST | 0x10000 SETFOREGROUND | 0x30 ICONWARNING
-[Win32Msg]::MessageBoxW([IntPtr]::Zero, $msg, 'Pjsk 卡牌雷达 · 抓取失败', 0x50030) | Out-Null
+[Win32Msg]::MessageBoxW([IntPtr]::Zero, $msg, "卡牌雷达 · $Module 抓取提醒", 0x50030) | Out-Null

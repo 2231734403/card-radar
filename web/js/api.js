@@ -1,129 +1,144 @@
-// API 层：与本地服务器交互的唯一入口
-export async function fetchIndex() {
-  const r = await fetch('/api/index');
-  if (!r.ok) throw new Error('索引加载失败');
-  return r.json();
+// API 层：统一对接 Card Radar v2 REST API（清晰解耦，零硬编码路径拼接）
+import { getModule } from './modules/registry.js?v=2.0.0';
+
+async function jsonReq(url, opts = {}) {
+  const r = await fetch(url, opts);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || `请求失败（HTTP ${r.status}）`);
+  return data;
 }
 
-export async function fetchStatus() {
-  const r = await fetch('/api/status');
-  if (!r.ok) throw new Error('状态接口失败');
-  return r.json();
+export function fetchHealth() {
+  return jsonReq('/api/v2/health');
 }
 
-export async function fetchCardDetail(id) {
-  const r = await fetch(`/api/cards/${id}`);
-  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || '详情加载失败');
-  return r.json();
+export function fetchModules() {
+  return jsonReq('/api/v2/modules');
 }
 
-/** 创建原图下载任务（服务端抓取 PNG 并写入系统「下载」文件夹），返回 jobId。
- *  mod: pjsk（主备源竞速）| bandori（bestdori）| onotes（bdon.moe，card/support 双类）| shinycolors */
-export async function downloadOriginal(cardId, kind, mod = 'pjsk') {
-  const base = mod === 'bandori' ? '/api/bandori/download'
-    : mod === 'onotes' ? '/api/onotes/download'
-    : mod === 'shinycolors' ? '/api/shinycolors/download' : '/api/download';
-  const r = await fetch(`${base}/${cardId}/${kind}`, { method: 'POST' });
-  return r.json();
+export function fetchModuleIndex(modKey) {
+  const mod = getModule(modKey);
+  return jsonReq(`/api/v2/modules/${mod.apiMod}/index`);
 }
 
-/** 轮询单个下载任务进度 */
-export async function downloadProgress(jobId) {
-  const r = await fetch(`/api/download-progress/${jobId}`);
-  if (!r.ok) throw new Error('进度查询失败');
-  return r.json();
+export function fetchModuleStatus(modKey) {
+  const mod = getModule(modKey);
+  return jsonReq(`/api/v2/modules/${mod.apiMod}/status`);
 }
 
-/** 全部下载任务列表（统一下载面板用） */
-export async function downloadJobs() {
-  const r = await fetch('/api/download-jobs');
-  if (!r.ok) throw new Error('下载列表获取失败');
-  return r.json();
+export function fetchCardDetail(modKey, id, kind = null) {
+  const mod = getModule(modKey);
+  const url = mod.compositeKey && kind
+    ? `/api/v2/modules/${mod.apiMod}/cards/${encodeURIComponent(kind)}/${id}`
+    : `/api/v2/modules/${mod.apiMod}/cards/${id}`;
+  return jsonReq(url);
 }
 
-/** 超分（tier: 2k | 4k；engine: ai | pillow；mod: pjsk | bandori | onotes，档位与引擎由设置页决定） */
-export async function superresImage(cardId, kind, tier = "4k", engine = "ai", mod = 'pjsk') {
-  const base = mod === 'bandori' ? '/api/bandori/superres'
-    : mod === 'onotes' ? '/api/onotes/superres'
-    : mod === 'shinycolors' ? '/api/shinycolors/superres' : '/api/superres';
-  const r = await fetch(`${base}/${cardId}/${kind}?target=${encodeURIComponent(tier)}&engine=${encodeURIComponent(engine)}`,
-    { method: 'POST' });
-  return r.json();
+// ---- 下载 / 超分 / 批量 / 重试 ----
+export function downloadOriginal(cardId, kind, modKey = 'pjsk') {
+  const mod = getModule(modKey);
+  return fetch('/api/v2/jobs/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mod: mod.apiMod, cardId: Number(cardId), kind }),
+  }).then(r => r.json());
 }
 
-/** 图片缓存统计 */
-export async function cacheStats() {
-  const r = await fetch('/api/cache-stats');
-  if (!r.ok) throw new Error('缓存统计失败');
-  return r.json();
+export function superresImage(cardId, kind, tier = '4k', engine = 'ai', modKey = 'pjsk') {
+  const mod = getModule(modKey);
+  return fetch('/api/v2/jobs/superres', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mod: mod.apiMod, cardId: Number(cardId), kind, tier, engine }),
+  }).then(r => r.json());
 }
 
-/** 清除图片缓存（data/originals） */
-export async function cacheClear() {
-  const r = await fetch('/api/cache-clear', { method: 'POST' });
-  if (!r.ok) throw new Error('缓存清除失败');
-  return r.json();
+export function enqueueBatchJobs(action, items, tier = '4k', engine = 'ai') {
+  return jsonReq('/api/v2/jobs/batch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, items, tier, engine }),
+  });
 }
 
-/** 删除指定下载任务记录（下载面板条目「单独删除」用） */
-export async function removeJob(jobId) {
-  const r = await fetch(`/api/job-remove/${encodeURIComponent(jobId)}`, { method: 'POST' });
-  return r.json();
+export function downloadJobs(mod = '', state = '') {
+  const params = new URLSearchParams();
+  if (mod) params.set('mod', mod);
+  if (state) params.set('state', state);
+  const qs = params.toString();
+  return jsonReq(`/api/v2/jobs${qs ? '?' + qs : ''}`);
 }
 
-/** 邦多利模块：索引 / 状态 / 单卡详情（bestdori 数据） */
-export async function fetchBandoriIndex() {
-  const r = await fetch('/api/bandori/index');
-  if (!r.ok) throw new Error('邦多利索引加载失败');
-  return r.json();
+export function downloadProgress(jobId) {
+  return jsonReq(`/api/v2/jobs/${encodeURIComponent(jobId)}`);
 }
 
-export async function fetchBandoriStatus() {
-  const r = await fetch('/api/bandori/status');
-  if (!r.ok) throw new Error('邦多利状态接口失败');
-  return r.json();
+export function retryJob(jobId) {
+  return jsonReq(`/api/v2/jobs/${encodeURIComponent(jobId)}/retry`, { method: 'POST' });
 }
 
-export async function fetchBandoriCardDetail(id) {
-  const r = await fetch(`/api/bandori/cards/${id}`);
-  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || '详情加载失败');
-  return r.json();
+export function removeJob(jobId) {
+  return fetch(`/api/v2/jobs/${encodeURIComponent(jobId)}`, { method: 'DELETE' }).then(r => r.json());
 }
 
-// 闪耀色彩模块
-export async function fetchShinyIndex() {
-  const r = await fetch('/api/shinycolors/index');
-  if (!r.ok) throw new Error('闪耀色彩索引加载失败');
-  return r.json();
+export function clearFinishedJobs() {
+  return jsonReq('/api/v2/jobs/clear', { method: 'POST' });
 }
 
-export async function fetchShinyStatus() {
-  const r = await fetch('/api/shinycolors/status');
-  if (!r.ok) throw new Error('闪耀色彩状态接口失败');
-  return r.json();
+// ---- ZIP 收藏包导出 ----
+export async function exportZipPack(items, groupBy = 'unit', fetchMissing = true) {
+  const r = await fetch('/api/v2/export/zip', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items, groupBy, fetchMissing }),
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.error || `打包导出失败（HTTP ${r.status}）`);
+  }
+  const cd = r.headers.get('Content-Disposition') || '';
+  const mUtf = cd.match(/filename\*=UTF-8''([^;]+)/i);
+  const filename = mUtf ? decodeURIComponent(mUtf[1]) : 'card_radar_pack.zip';
+  const blob = await r.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(a.href);
+    a.remove();
+  }, 1000);
+  return filename;
 }
 
-export async function fetchShinyCardDetail(id) {
-  const r = await fetch(`/api/shinycolors/cards/${id}`);
-  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || '详情加载失败');
-  return r.json();
+// ---- 全模块缓存管理 ----
+export function cacheStats() {
+  return jsonReq('/api/v2/cache');
 }
 
-// Our Notes 模块（bdon.moe：角色卡 + 支援卡）
-export async function fetchOnotesIndex() {
-  const r = await fetch('/api/onotes/index');
-  if (!r.ok) throw new Error('Our Notes 索引加载失败');
-  return r.json();
+export function cacheClear(mod = 'all') {
+  return jsonReq(`/api/v2/cache?mod=${encodeURIComponent(mod)}`, { method: 'DELETE' });
 }
 
-export async function fetchOnotesStatus() {
-  const r = await fetch('/api/onotes/status');
-  if (!r.ok) throw new Error('Our Notes 状态接口失败');
-  return r.json();
+// ---- 用户档案（收藏/分组/设置） ----
+export function fetchUserProfile() {
+  return jsonReq('/api/v2/user-data');
 }
 
-export async function fetchOnotesCardDetail(id, kind = 'card') {
-  const r = await fetch(`/api/onotes/cards/${id}/${kind}`);
-  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || '详情加载失败');
-  return r.json();
+export function saveUserProfile(payload) {
+  return jsonReq('/api/v2/user-data', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 }
+
+// ---- 数据源可达性探活 ----
+export function probeSources(force = false) {
+  return jsonReq(`/api/v2/sources/probe${force ? '?force=1' : ''}`);
+}
+
+// 兼容别名
+export const fetchStatus = () => fetchModuleStatus('pjsk');
+export const fetchIndex = () => fetchModuleIndex('pjsk');

@@ -3,29 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>卡牌雷达 · 卡牌图鉴</title>
+<title>卡牌雷达 · Card Radar</title>
+<link rel="manifest" href="/manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐳</text></svg>">
-<link rel="stylesheet" href="/css/style.css?v=1.16.2">
+<link rel="stylesheet" href="/css/style.css?v=2.0.0">
 </head>
 <body>
+<header class="mobile-bar">
+  <button class="icon-btn" id="mobile-menu-btn" aria-label="打开菜单">☰</button>
+  <div class="mobile-brand"><span>🐳</span><b>卡牌雷达</b></div>
+  <button class="icon-btn" id="mobile-mode-btn" title="切换浅色/深色模式">🌓</button>
+</header>
+<div class="sidebar-mask" id="sidebar-mask"></div>
 <div class="layout">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="logo">🐳</div>
-      <div>
+      <div class="brand-text">
         <div class="name">卡牌雷达</div>
-        <div class="sub">多游戏卡面 · 本地镜像</div>
+        <div class="sub">多游戏卡面 · 本地镜像 v2</div>
       </div>
+      <button class="icon-btn small" id="mode-toggle-btn" title="切换浅色/深色模式 (快捷键 D)">🌓</button>
     </div>
     <div id="sidebar-nav"></div>
-    <div class="sidebar-foot" id="sidebar-foot">
-      <span class="dot"></span>数据服务运行中
+    <div class="sidebar-foot">
+      <div id="sidebar-foot-status"><span class="dot"></span>数据服务连接中…</div>
+      <div class="sidebar-foot-tools">
+        <button class="foot-link" id="btn-shortcuts" title="查看快捷键 (?)">⌨️ 快捷键</button>
+        <span class="foot-ver" id="sidebar-ver"></span>
+      </div>
     </div>
   </aside>
   <main class="main">
     <div id="app"></div>
   </main>
 </div>
-<script type="module" src="/js/main.js?v=1.16.2"></script>
+<script type="module" src="/js/main.js?v=2.0.0"></script>
 </body>
 </html>

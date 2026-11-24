@@ -1,0 +1,42 @@
+name: Card Radar CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install sole runtime dependency (Pillow)
+        run: python -m pip install --upgrade pillow
+
+      - name: Engineering integrity & version consistency check
+        run: python -X utf8 scripts/check_integrity.py
+
+      - name: Python unit & HTTP E2E tests
+        run: python -X utf8 -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Frontend JS syntax & module contract tests
+        run: |
+          Get-ChildItem -Recurse -File -Path web -Include *.js | ForEach-Object {
+            node --check $_.FullName
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+          }
+          node --test tests/frontend.test.mjs
+        shell: pwsh

@@ -1,8 +1,20 @@
-// 轻量 hash 路由：#/cards / #/card/:id / #/home ...
-const routes = []; // {pattern, name, handler}
+// 轻量 hash 路由：支持正则参数捕获与页面离开清理钩子（onLeave），防止监听器泄漏
+const routes = [];
+let currentCleanup = null;
 
 export function register(pattern, name, handler) {
   routes.push({ pattern, name, handler });
+}
+
+export function setPageCleanup(fn) {
+  currentCleanup = typeof fn === 'function' ? fn : null;
+}
+
+function runCleanup() {
+  if (currentCleanup) {
+    try { currentCleanup(); } catch { /* 忽略清理异常 */ }
+    currentCleanup = null;
+  }
 }
 
 function match(path) {
@@ -20,9 +32,10 @@ export function navigate(hash) {
 
 export async function render() {
   const app = document.getElementById('app');
-  const path = (location.hash.replace(/^#/, '') || '/home');
+  if (!app) return;
+  runCleanup();
+  const path = location.hash.replace(/^#/, '').split('?')[0] || '/pjsk/home';
   const hit = match(path);
-  // 导航高亮
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.route === (hit?.r.name ?? ''));
   });
@@ -33,7 +46,7 @@ export async function render() {
   try {
     await hit.r.handler(app, ...hit.m.slice(1));
   } catch (e) {
-    app.innerHTML = `<div class="loading-block">加载失败：${e.message}</div>`;
+    app.innerHTML = `<div class="loading-block">加载失败：${String(e?.message || e)}</div>`;
   }
 }
 
